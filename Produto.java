@@ -18,7 +18,7 @@ public class Produto {
 		preco = 0.00F;
 		quantidade = 0;
 		dataFabricacao = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-		dataValidade = LocalDate.now().plusMonths(6); // o default é uma validade de 6 meses.
+		dataValidade = LocalDate.now().plusMonths(6);
 	}
 
 	public Produto(int id, String descricao, float preco, int quantidade, LocalDateTime fabricacao, LocalDate v) {
@@ -72,7 +72,6 @@ public class Produto {
 	}
 
 	public void setDataFabricacao(LocalDateTime dataFabricacao) {
-		// Pega a Data Atual
 		LocalDateTime agora = LocalDateTime.now();
 		// Garante que a data de fabricação não pode ser futura
 		if (agora.compareTo(dataFabricacao) >= 0)
@@ -80,7 +79,6 @@ public class Produto {
 	}
 
 	public void setDataValidade(LocalDate dataValidade) {
-		// a data de fabricação deve ser anterior é data de validade.
 		if (getDataFabricacao().isBefore(dataValidade.atStartOfDay()))
 			this.dataValidade = dataValidade;
 	}
@@ -89,11 +87,6 @@ public class Produto {
 		return LocalDateTime.now().isBefore(this.getDataValidade().atTime(23, 59));
 	}
 
-
-	/**
-	 * Método sobreposto da classe Object. É executado quando um objeto precisa
-	 * ser exibido na forma de String.
-	 */
 	@Override
 	public String toString() {
 		return "Produto: " + descricao + "   Preço: R$" + preco + "   Quantidade.: " + quantidade + "   Fabricação: "

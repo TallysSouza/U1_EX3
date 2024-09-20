@@ -7,7 +7,7 @@
 
 <script type="text/javascript">
 
-function confirmarDeleteProduto(id, descricao, preco) {  
+function confirmProductDelete(id, descricao, preco) {  
 	
     if (confirm('Confirmar a exclusão do produto [' + descricao + '] (ID ' + id + ') com preço R$ ' + preco)) {  
         location.href = '/produto/delete/' + id;
@@ -24,7 +24,7 @@ function onLoad() {
 <body onload="onLoad()">
 	<h1>Controle de Estoque</h1>
 	<input type="hidden" id="msg" name="msg" value="">
-    <UM-PRODUTO>
+    <PRODUTO>
 	<br>
 	<LISTAR-PRODUTO>
 	<style>
@@ -38,7 +38,7 @@ body {
 
 
 .input--main__style {
-	background-color: #00FF00;
+	background-color: #00c000;
 }
 
 .input--button {
