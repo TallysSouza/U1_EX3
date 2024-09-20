@@ -40,118 +40,122 @@ public class ProdutoService {
 	
 	public void makeForm(int tipo, Produto produto, int orderBy) {
 		String nomeArquivo = "form.html";
-		form = "";
-		try{
-			Scanner entrada = new Scanner(new File(nomeArquivo));
-		    while(entrada.hasNext()){
-		    	form += (entrada.nextLine() + "\n");
-		    }
-		    entrada.close();
-		}  catch (Exception e) { System.out.println(e.getMessage()); }
-		
-		String umProduto = "";
-		if(tipo != FORM_INSERT) {
-			umProduto += "\t<table width=\"80%\" bgcolor=\"#f3f3f3\" align=\"center\">";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td align=\"left\"><font size=\"+2\"><b>&nbsp;&nbsp;&nbsp;<a href=\"/produto/list/1\">Novo Produto</a></b></font></td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t</table>";
-			umProduto += "\t<br>";			
-		}
-		
-		if(tipo == FORM_INSERT || tipo == FORM_UPDATE) {
-			String action = "/produto/";
-			String name, descricao, buttonLabel;
-			if (tipo == FORM_INSERT){
-				action += "insert";
-				name = "Inserir Produto";
-				descricao = "leite, pão, ...";
-				buttonLabel = "Inserir";
-			} else {
-				action += "update/" + produto.getID();
-				name = "Atualizar Produto (ID " + produto.getID() + ")";
-				descricao = produto.getDescricao();
-				buttonLabel = "Atualizar";
+		StringBuilder formBuilder = new StringBuilder();
+	
+		try (Scanner entrada = new Scanner(new File(nomeArquivo))) {
+			while (entrada.hasNext()) {
+				formBuilder.append(entrada.nextLine()).append("\n");
 			}
-			umProduto += "\t<form class=\"form--register\" action=\"" + action + "\" method=\"post\" id=\"form-add\">";
-			umProduto += "\t<table width=\"80%\" bgcolor=\"#f3f3f3\" align=\"center\">";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td colspan=\"3\" align=\"left\"><font size=\"+2\"><b>&nbsp;&nbsp;&nbsp;" + name + "</b></font></td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td colspan=\"3\" align=\"left\">&nbsp;</td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td>&nbsp;Descrição: <input class=\"input--register\" type=\"text\" name=\"descricao\" value=\""+ descricao +"\"></td>";
-			umProduto += "\t\t\t<td>Preco: <input class=\"input--register\" type=\"text\" name=\"preco\" value=\""+ produto.getPreco() +"\"></td>";
-			umProduto += "\t\t\t<td>Quantidade: <input class=\"input--register\" type=\"text\" name=\"quantidade\" value=\""+ produto.getQuantidade() +"\"></td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td>&nbsp;Data de fabricação: <input class=\"input--register\" type=\"text\" name=\"dataFabricacao\" value=\""+ produto.getDataFabricacao().toString() + "\"></td>";
-			umProduto += "\t\t\t<td>Data de validade: <input class=\"input--register\" type=\"text\" name=\"dataValidade\" value=\""+ produto.getDataValidade().toString() + "\"></td>";
-			umProduto += "\t\t\t<td align=\"center\"><input type=\"submit\" value=\""+ buttonLabel +"\" class=\"input--main__style input--button\"></td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t</table>";
-			umProduto += "\t</form>";		
-		} else if (tipo == FORM_DETAIL){
-			umProduto += "\t<table width=\"80%\" bgcolor=\"#f3f3f3\" align=\"center\">";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td colspan=\"3\" align=\"left\"><font size=\"+2\"><b>&nbsp;&nbsp;&nbsp;Detalhar Produto (ID " + produto.getID() + ")</b></font></td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td colspan=\"3\" align=\"left\">&nbsp;</td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td>&nbsp;Descrição: "+ produto.getDescricao() +"</td>";
-			umProduto += "\t\t\t<td>Preco: "+ produto.getPreco() +"</td>";
-			umProduto += "\t\t\t<td>Quantidade: "+ produto.getQuantidade() +"</td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t\t<tr>";
-			umProduto += "\t\t\t<td>&nbsp;Data de fabricação: "+ produto.getDataFabricacao().toString() + "</td>";
-			umProduto += "\t\t\t<td>Data de validade: "+ produto.getDataValidade().toString() + "</td>";
-			umProduto += "\t\t\t<td>&nbsp;</td>";
-			umProduto += "\t\t</tr>";
-			umProduto += "\t</table>";		
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	
+		StringBuilder umProdutoBuilder = new StringBuilder();
+		
+		// Adding "Novo Produto" button for non-insert forms
+		if (tipo != FORM_INSERT) {
+			umProdutoBuilder.append("\t<table width=\"80%\" bgcolor=\"#f3f3f3\" align=\"center\">")
+						   .append("\t\t<tr>")
+						   .append("\t\t\t<td align=\"left\"><font size=\"+2\"><b>&nbsp;&nbsp;&nbsp;<a href=\"/produto/list/1\">Novo Produto</a></b></font></td>")
+						   .append("\t\t</tr>")
+						   .append("\t</table>")
+						   .append("\t<br>");
+		}
+	
+		if (tipo == FORM_INSERT || tipo == FORM_UPDATE) {
+			// Preparing for form insertion or update
+			String action = tipo == FORM_INSERT ? "/produto/insert" : "/produto/update/" + produto.getID();
+			String name = tipo == FORM_INSERT ? "Inserir Produto" : "Atualizar Produto (ID " + produto.getID() + ")";
+			String descricao = tipo == FORM_INSERT ? "leite, pão, ..." : produto.getDescricao();
+			String buttonLabel = tipo == FORM_INSERT ? "Inserir" : "Atualizar";
+	
+			// Building the form for insert/update
+			umProdutoBuilder.append("\t<form class=\"form--register\" action=\"").append(action).append("\" method=\"post\" id=\"form-add\">")
+						   .append("\t<table width=\"80%\" bgcolor=\"#f3f3f3\" align=\"center\">")
+						   .append("\t\t<tr>")
+						   .append("\t\t\t<td colspan=\"3\" align=\"left\"><font size=\"+2\"><b>&nbsp;&nbsp;&nbsp;").append(name).append("</b></font></td>")
+						   .append("\t\t</tr>")
+						   .append("\t\t<tr><td colspan=\"3\" align=\"left\">&nbsp;</td></tr>")
+						   .append("\t\t<tr>")
+						   .append("\t\t\t<td>&nbsp;Descrição: <input class=\"input--register\" type=\"text\" name=\"descricao\" value=\"").append(descricao).append("\"></td>")
+						   .append("\t\t\t<td>Preco: <input class=\"input--register\" type=\"text\" name=\"preco\" value=\"").append(produto.getPreco()).append("\"></td>")
+						   .append("\t\t\t<td>Quantidade: <input class=\"input--register\" type=\"text\" name=\"quantidade\" value=\"").append(produto.getQuantidade()).append("\"></td>")
+						   .append("\t\t</tr>")
+						   .append("\t\t<tr>")
+						   .append("\t\t\t<td>&nbsp;Data de fabricação: <input class=\"input--register\" type=\"text\" name=\"dataFabricacao\" value=\"").append(produto.getDataFabricacao()).append("\"></td>")
+						   .append("\t\t\t<td>Data de validade: <input class=\"input--register\" type=\"text\" name=\"dataValidade\" value=\"").append(produto.getDataValidade()).append("\"></td>")
+						   .append("\t\t\t<td align=\"center\"><input type=\"submit\" value=\"").append(buttonLabel).append("\" class=\"input--main__style input--button\"></td>")
+						   .append("\t\t</tr>")
+						   .append("\t</table>")
+						   .append("\t</form>");
+		} else if (tipo == FORM_DETAIL) {
+			// Building the detail form
+			umProdutoBuilder.append("\t<table width=\"80%\" bgcolor=\"#f3f3f3\" align=\"center\">")
+						   .append("\t\t<tr>")
+						   .append("\t\t\t<td colspan=\"3\" align=\"left\"><font size=\"+2\"><b>&nbsp;&nbsp;&nbsp;Detalhar Produto (ID ").append(produto.getID()).append(")</b></font></td>")
+						   .append("\t\t</tr>")
+						   .append("\t\t<tr><td colspan=\"3\" align=\"left\">&nbsp;</td></tr>")
+						   .append("\t\t<tr>")
+						   .append("\t\t\t<td>&nbsp;Descrição: ").append(produto.getDescricao()).append("</td>")
+						   .append("\t\t\t<td>Preco: ").append(produto.getPreco()).append("</td>")
+						   .append("\t\t\t<td>Quantidade: ").append(produto.getQuantidade()).append("</td>")
+						   .append("\t\t</tr>")
+						   .append("\t\t<tr>")
+						   .append("\t\t\t<td>&nbsp;Data de fabricação: ").append(produto.getDataFabricacao()).append("</td>")
+						   .append("\t\t\t<td>Data de validade: ").append(produto.getDataValidade()).append("</td>")
+						   .append("\t\t\t<td>&nbsp;</td>")
+						   .append("\t\t</tr>")
+						   .append("\t</table>");
 		} else {
 			System.out.println("ERRO! Tipo não identificado " + tipo);
 		}
-		form = form.replaceFirst("<UM-PRODUTO>", umProduto);
-		
-		String list = new String("<table width=\"80%\" align=\"center\" bgcolor=\"#f3f3f3\">");
-		list += "\n<tr><td colspan=\"6\" align=\"left\"><font size=\"+2\"><b>&nbsp;&nbsp;&nbsp;Relação de Produtos</b></font></td></tr>\n" +
-				"\n<tr><td colspan=\"6\">&nbsp;</td></tr>\n" +
-    			"\n<tr>\n" + 
-        		"\t<td><a href=\"/produto/list/" + FORM_ORDERBY_ID + "\"><b>ID</b></a></td>\n" +
-        		"\t<td><a href=\"/produto/list/" + FORM_ORDERBY_DESCRICAO + "\"><b>Descrição</b></a></td>\n" +
-        		"\t<td><a href=\"/produto/list/" + FORM_ORDERBY_PRECO + "\"><b>Preço</b></a></td>\n" +
-        		"\t<td width=\"100\" align=\"center\"><b>Detalhar</b></td>\n" +
-        		"\t<td width=\"100\" align=\"center\"><b>Atualizar</b></td>\n" +
-        		"\t<td width=\"100\" align=\"center\"><b>Excluir</b></td>\n" +
-        		"</tr>\n";
-		
+	
+		formBuilder = new StringBuilder(formBuilder.toString().replaceFirst("<UM-PRODUTO>", umProdutoBuilder.toString()));
+	
+		// Creating the product list
+		StringBuilder listBuilder = new StringBuilder("<table width=\"80%\" align=\"center\" bgcolor=\"#f3f3f3\">")
+			.append("\n<tr><td colspan=\"6\" align=\"left\"><font size=\"+2\"><b>&nbsp;&nbsp;&nbsp;Relação de Produtos</b></font></td></tr>\n")
+			.append("\n<tr><td colspan=\"6\">&nbsp;</td></tr>\n")
+			.append("\n<tr>")
+			.append("\t<td><a href=\"/produto/list/").append(FORM_ORDERBY_ID).append("\"><b>ID</b></a></td>\n")
+			.append("\t<td><a href=\"/produto/list/").append(FORM_ORDERBY_DESCRICAO).append("\"><b>Descrição</b></a></td>\n")
+			.append("\t<td><a href=\"/produto/list/").append(FORM_ORDERBY_PRECO).append("\"><b>Preço</b></a></td>\n")
+			.append("\t<td width=\"100\" align=\"center\"><b>Detalhar</b></td>\n")
+			.append("\t<td width=\"100\" align=\"center\"><b>Atualizar</b></td>\n")
+			.append("\t<td width=\"100\" align=\"center\"><b>Excluir</b></td>\n")
+			.append("</tr>\n");
+	
+		// Retrieving ordered products
 		List<Produto> produtos;
-		if (orderBy == FORM_ORDERBY_ID) {                 	produtos = produtoDAO.getOrderByID();
-		} else if (orderBy == FORM_ORDERBY_DESCRICAO) {		produtos = produtoDAO.getOrderByDescricao();
-		} else if (orderBy == FORM_ORDERBY_PRECO) {			produtos = produtoDAO.getOrderByPreco();
-		} else {											produtos = produtoDAO.get();
+		if (orderBy == FORM_ORDERBY_ID) {
+			produtos = produtoDAO.getOrderByID();
+		} else if (orderBy == FORM_ORDERBY_DESCRICAO) {
+			produtos = produtoDAO.getOrderByDescricao();
+		} else if (orderBy == FORM_ORDERBY_PRECO) {
+			produtos = produtoDAO.getOrderByPreco();
+		} else {
+			produtos = produtoDAO.get();
 		}
-
+	
 		int i = 0;
-		String bgcolor = "";
 		for (Produto p : produtos) {
-			bgcolor = (i++ % 2 == 0) ? "#fff5dd" : "#dddddd";
-			list += "\n<tr bgcolor=\""+ bgcolor +"\">\n" + 
-            		  "\t<td>" + p.getID() + "</td>\n" +
-            		  "\t<td>" + p.getDescricao() + "</td>\n" +
-            		  "\t<td>" + p.getPreco() + "</td>\n" +
-            		  "\t<td align=\"center\" valign=\"middle\"><a href=\"/produto/" + p.getID() + "\"><img src=\"/image/detail.png\" width=\"20\" height=\"20\"/></a></td>\n" +
-            		  "\t<td align=\"center\" valign=\"middle\"><a href=\"/produto/update/" + p.getID() + "\"><img src=\"/image/update.png\" width=\"20\" height=\"20\"/></a></td>\n" +
-            		  "\t<td align=\"center\" valign=\"middle\"><a href=\"javascript:confirmProductDelete('" + p.getID() + "', '" + p.getDescricao() + "', '" + p.getPreco() + "');\"><img src=\"/image/delete.png\" width=\"20\" height=\"20\"/></a></td>\n" +
-            		  "</tr>\n";
+			String bgcolor = (i++ % 2 == 0) ? "#fff5dd" : "#dddddd";
+			listBuilder.append("\n<tr bgcolor=\"").append(bgcolor).append("\">\n")
+					   .append("\t<td>").append(p.getID()).append("</td>\n")
+					   .append("\t<td>").append(p.getDescricao()).append("</td>\n")
+					   .append("\t<td>").append(p.getPreco()).append("</td>\n")
+					   .append("\t<td align=\"center\" valign=\"middle\"><a href=\"/produto/").append(p.getID()).append("\"><img src=\"/image/detail.png\" width=\"20\" height=\"20\"/></a></td>\n")
+					   .append("\t<td align=\"center\" valign=\"middle\"><a href=\"/produto/update/").append(p.getID()).append("\"><img src=\"/image/update.png\" width=\"20\" height=\"20\"/></a></td>\n")
+					   .append("\t<td align=\"center\" valign=\"middle\"><a href=\"javascript:confirmProductDelete('").append(p.getID()).append("', '").append(p.getDescricao()).append("', '").append(p.getPreco()).append("');\"><img src=\"/image/delete.png\" width=\"20\" height=\"20\"/></a></td>\n")
+					   .append("</tr>\n");
 		}
-		list += "</table>";		
-		form = form.replaceFirst("<LISTAR-PRODUTO>", list);				
+	
+		listBuilder.append("</table>");
+		formBuilder = new StringBuilder(formBuilder.toString().replaceFirst("<LISTAR-PRODUTO>", listBuilder.toString()));
+		
+		form = formBuilder.toString();
 	}
+	
 	
 	
 	public Object insert(Request request, Response response) {
